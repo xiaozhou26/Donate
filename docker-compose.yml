@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  donate:
+    container_name: donate
+    restart: unless-stopped
+    image: ghcr.io/xiaozhou26/donate:main
+    ports:
+      - "5050:5050"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./urls.db:/app/urls.db
