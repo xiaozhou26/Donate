@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5050
 
 # 运行入口点脚本
-CMD ["python", "donate.py"]
+CMD ["python", "main.py"]
