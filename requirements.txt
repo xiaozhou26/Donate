@@ -3,3 +3,4 @@ flask-socketio
 requests
 beautifulsoup4
 eventlet
+schedule
