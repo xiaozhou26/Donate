@@ -7,6 +7,8 @@ import psycopg2
 from flask_socketio import SocketIO
 import os
 from dotenv import load_dotenv
+
+# 加载环境变量
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
 socketio = None
@@ -28,26 +30,41 @@ def init_db():
     if not conn:
         print("Failed to connect to the database.")
         return
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS urls (
-            url TEXT PRIMARY KEY,
-            gateways TEXT,
-            weight INTEGER
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS urls (
+                url TEXT PRIMARY KEY,
+                gateways TEXT,
+                captcha TEXT,
+                cloudflare TEXT,
+                weight INTEGER DEFAULT 0
+            )
+        ''')
+        conn.commit()
+    except Exception as e:
+        print(f"Error initializing the database: {e}")
+    finally:
+        conn.close()
 
-def insert_url(url, gateways):
+def insert_url(url, gateways, captcha, cloudflare):
     conn = get_db_connection()
     if not conn:
         print("Failed to connect to the database.")
         return
-    c = conn.cursor()
-    c.execute("INSERT INTO urls (url, gateways, weight) VALUES (%s, %s, %s) ON CONFLICT (url) DO NOTHING", (url, ','.join(gateways), 0))
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO urls (url, gateways, captcha, cloudflare, weight) 
+            VALUES (%s, %s, %s, %s, %s) 
+            ON CONFLICT (url) 
+            DO UPDATE SET gateways = EXCLUDED.gateways, captcha = EXCLUDED.captcha, cloudflare = EXCLUDED.cloudflare
+        ''', (url, ','.join(gateways), captcha, cloudflare, 0))
+        conn.commit()
+    except Exception as e:
+        print(f"Error inserting URL into the database: {e}")
+    finally:
+        conn.close()
 
 def google_dork_search_and_check(payment_gateways):
     session = requests.Session()
@@ -102,13 +119,14 @@ def check_website(url, payment_gateways):
             gateway_found = []
 
             for gateway in payment_gateways:
-                if gateway in html_content:
+                if gateway.lower() in html_content:
                     gateway_found.append(gateway)
-                    insert_url(url, gateway_found)
 
             gateway_msg = ', '.join(gateway_found) if gateway_found else 'No gateway detected'
             captcha_msg = 'Yes' if 'captcha' in html_content else 'No'
             cloudflare_msg = 'Yes' if response.headers.get('Server') == 'cloudflare' else 'No'
+
+            insert_url(url, gateway_found, captcha_msg, cloudflare_msg)
 
             print(f"{url} - Gateway: {gateway_msg}, Captcha: {captcha_msg}, Cloudflare: {cloudflare_msg}")
 
