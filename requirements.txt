@@ -14,4 +14,4 @@ schedule
 soupsieve
 urllib3
 Werkzeug
-python-dotenvinit
+python-dotenv
