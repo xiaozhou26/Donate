@@ -79,4 +79,4 @@ if __name__ == '__main__':
     threading.Thread(target=lambda: crawler.google_dork_search_and_check(payment_gateways)).start()  # Initial run
     schedule.every(30).minutes.do(crawler.job, payment_gateways)
     threading.Thread(target=run_schedule).start()
-    socketio.run(app, host='0.0.0.0', port=3000, allow_unsafe_werkzeug=True)
+    app.run(host='0.0.0.0', port=5000)  # Listens on all interfaces
