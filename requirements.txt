@@ -14,5 +14,3 @@ schedule
 soupsieve
 urllib3
 Werkzeug
-pysql-connector-python
-
