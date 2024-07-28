@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 暴露Flask应用程序运行的端口
-EXPOSE 5050
+EXPOSE 5000
 
 # 运行入口点脚本
 CMD ["python", "main.py"]
