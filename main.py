@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 # 加载环境变量
 load_dotenv()
-
+port = int(os.getenv('PORT', 5000))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -92,6 +92,6 @@ def start_crawler():
 
 if __name__ == '__main__':
     # 启动Flask应用
-    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000))
+    flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=port))
     flask_thread.start()
     start_crawler()
