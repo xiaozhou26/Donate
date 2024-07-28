@@ -36,25 +36,35 @@ def get_urls(page=1, per_page=PER_PAGE):
     conn = get_db_connection()
     if not conn:
         return {}, 0  # 如果数据库连接失败，返回空字典和0
-    c = conn.cursor()
-    c.execute("SELECT url, gateways, weight FROM urls ORDER BY weight DESC LIMIT %s OFFSET %s", (per_page, offset))
-    rows = c.fetchall()
-    c.execute("SELECT COUNT(*) FROM urls")
-    total_rows = c.fetchone()[0]
-    conn.close()
-    return {row[0]: {"gateways": row[1], "weight": row[2]} for row in rows}, total_rows
+    try:
+        c = conn.cursor()
+        c.execute("SELECT url, gateways, captcha, cloudflare, weight FROM urls ORDER BY weight DESC LIMIT %s OFFSET %s", (per_page, offset))
+        rows = c.fetchall()
+        c.execute("SELECT COUNT(*) FROM urls")
+        total_rows = c.fetchone()[0]
+    except Exception as e:
+        print(f"Error fetching URLs from the database: {e}")
+        return {}, 0
+    finally:
+        conn.close()
+    return {row[0]: {"gateways": row[1], "captcha": row[2], "cloudflare": row[3], "weight": row[4]} for row in rows}, total_rows
 
 # 更新URL权重函数
 def update_weight(url, delta):
     conn = get_db_connection()
     if not conn:
         return 0  # 如果数据库连接失败，返回0
-    c = conn.cursor()
-    c.execute("UPDATE urls SET weight = weight + %s WHERE url = %s", (delta, url))
-    conn.commit()
-    c.execute("SELECT weight FROM urls WHERE url = %s", (url,))
-    new_weight = c.fetchone()[0]
-    conn.close()
+    try:
+        c = conn.cursor()
+        c.execute("UPDATE urls SET weight = weight + %s WHERE url = %s", (delta, url))
+        conn.commit()
+        c.execute("SELECT weight FROM urls WHERE url = %s", (url,))
+        new_weight = c.fetchone()[0]
+    except Exception as e:
+        print(f"Error updating weight for {url}: {e}")
+        return 0
+    finally:
+        conn.close()
     return new_weight
 
 # 首页路由

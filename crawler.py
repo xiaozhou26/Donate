@@ -137,7 +137,7 @@ def check_website(url, payment_gateways):
                     'captcha': captcha_msg,
                     'cloudflare': cloudflare_msg,
                     'weight': 0
-                }, broadcast=True)
+                })
 
         else:
             print(f"Failed to access {url}")
