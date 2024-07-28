@@ -93,6 +93,5 @@ def start_crawler():
 if __name__ == '__main__':
     # 启动Flask应用
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=5000))
-    if flask_thread.start():
-        print("Flask server started.")
-        start_crawler()
+    flask_thread.start()
+    start_crawler()
