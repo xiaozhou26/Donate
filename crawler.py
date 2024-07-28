@@ -3,28 +3,49 @@ import time
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-import sqlite3
+import psycopg2
 from flask_socketio import SocketIO
-
-DATABASE = 'urls.db'
+import os
+from dotenv import load_dotenv
+load_dotenv()
+DATABASE_URL = os.getenv('DATABASE_URL')
 socketio = None
 
 def init_socketio(sio: SocketIO):
     global socketio
     socketio = sio
 
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    except Exception as e:
+        print(f"Error connecting to the database: {e}")
+        return None
+
 def init_db():
-    conn = sqlite3.connect(DATABASE)
+    conn = get_db_connection()
+    if not conn:
+        print("Failed to connect to the database.")
+        return
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS urls
-                 (url TEXT PRIMARY KEY, gateways TEXT, weight INTEGER)''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS urls (
+            url TEXT PRIMARY KEY,
+            gateways TEXT,
+            weight INTEGER
+        )
+    ''')
     conn.commit()
     conn.close()
 
 def insert_url(url, gateways):
-    conn = sqlite3.connect(DATABASE)
+    conn = get_db_connection()
+    if not conn:
+        print("Failed to connect to the database.")
+        return
     c = conn.cursor()
-    c.execute("INSERT OR IGNORE INTO urls (url, gateways, weight) VALUES (?, ?, ?)", (url, ','.join(gateways), 0))
+    c.execute("INSERT INTO urls (url, gateways, weight) VALUES (%s, %s, %s) ON CONFLICT (url) DO NOTHING", (url, ','.join(gateways), 0))
     conn.commit()
     conn.close()
 
