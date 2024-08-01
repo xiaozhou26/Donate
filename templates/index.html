@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    
     <style>
         .container {
             max-width: 1200px;
@@ -28,10 +29,47 @@
         .pagination {
             justify-content: center;
         }
+        .announcement {
+            background-color: #f0f8ff; /* 柔和的背景颜色 */
+            border-radius: 10px; /* 圆角边框 */
+            padding: 20px; /* 内部填充 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 轻微的阴影效果 */
+        }
+
+        .announcement h4 {
+            text-align: center; /* 将标题居中对齐 */
+            color: #007bff; /* 标题的颜色 */
+            font-weight: bold; /* 加粗标题 */
+            margin-bottom: 15px; /* 标题底部间距 */
+        }
+
+        .announcement p {
+            color: #333; /* 正文字体颜色 */
+            font-size: 16px; /* 正文字体大小 */
+            line-height: 1.6; /* 行高 */
+        }
+        .table td a {
+            display: block;
+            word-wrap: break-word; /* 允许在单词内换行 */
+            word-break: break-all; /* 在必要时打断长单词换行 */
+            max-width: 200px; /* 可选：设置最大宽度以便在这宽度内换行 */
+            white-space: normal; /* 允许正常的文本换行 */
+        }
+
+
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Announcement Section -->
+        <div class="announcement mt-4">
+            <h4 class="mb-2">公告</h4>
+            <hr> <!-- 分割线增加视觉效果 -->
+            <p>有用的url请点赞，没有用的请点踩，感谢大家配合。</p>
+            <p>Useful URLs, please like them, useless ones, please dislike them, thank you all for your cooperation.</p>
+        </div>
+        
+
         <h1 class="mt-5 mb-4 text-center">支付网关 URL 列表</h1>
         
         <table class="table table-bordered table-hover">
